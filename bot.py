@@ -3,7 +3,8 @@ import urllib.parse
 import requests
 import telebot
 
-BOT_TOKEN = os.getenv("8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw")
+# Aapka direct token
+BOT_TOKEN = "8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw"  # <- Yahan apna poora token quotes ke andar paste karein
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
