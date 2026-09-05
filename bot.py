@@ -1,19 +1,19 @@
- import os
+import os
 import urllib.parse
 import requests
 import telebot
 
-# Render me environment variable se token lene ke liye
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw")
+BOT_TOKEN = os.getenv("8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw")
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    user_name = message.from_user.first_name
     text = (
-        f"Namaste {message.from_user.first_name}! 🎨\n\n"
-        "Main *AI Photo Generator & Editor Bot* hoon.\n\n"
+        f"Namaste {user_name}! 🎨\n\n"
+        "Main AI Photo Generator & Editor Bot hoon.\n\n"
         "1. Nayi photo: `/gen cyber warrior neon 4k`\n"
-        "2. Photo transform: Koi bhi photo bhejein aur Caption me prompt likhein!"
+        "2. Photo remix: Koi bhi photo bhejein aur Caption me prompt likhein!"
     )
     bot.send_message(message.chat.id, text, parse_mode="Markdown")
 
@@ -23,7 +23,7 @@ def generate_text_to_image(message):
     prompt = message.text.replace('/gen', '').replace('/photo', '').strip()
 
     if not prompt:
-        bot.send_message(chat_id, "❌ Prompt dalein! Example:\n`/gen anime boy with fire 4k`", parse_mode="Markdown")
+        bot.send_message(chat_id, "❌ Prompt dalein! Example:\n`/gen anime warrior with fire 4k`", parse_mode="Markdown")
         return
 
     wait_msg = bot.send_message(chat_id, f"🎨 Generating: *{prompt}*...", parse_mode="Markdown")
@@ -33,7 +33,7 @@ def generate_text_to_image(message):
     image_url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true"
 
     try:
-        bot.send_photo(chat_id, photo=image_url, caption=f"✨ **Prompt:** {prompt}", parse_mode="Markdown")
+        bot.send_photo(chat_id, photo=image_url, caption=f"✨ *Prompt:* {prompt}", parse_mode="Markdown")
         bot.delete_message(chat_id, wait_msg.message_id)
     except Exception as e:
         bot.edit_message_text(f"⚠️ Error: {e}", chat_id, wait_msg.message_id)
@@ -58,7 +58,7 @@ def handle_incoming_photo(message):
         encoded_img_url = urllib.parse.quote(input_image_url)
         remix_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?image={encoded_img_url}&width=1024&height=1024&nologo=true"
 
-        bot.send_photo(chat_id, photo=remix_url, caption=f"✨ **Transformed!**\n📝 {caption}", parse_mode="Markdown")
+        bot.send_photo(chat_id, photo=remix_url, caption=f"✨ *Transformed!*\n📝 {caption}", parse_mode="Markdown")
         bot.delete_message(chat_id, wait_msg.message_id)
     except Exception as e:
         bot.edit_message_text(f"⚠️ Error: {e}", chat_id, wait_msg.message_id)
