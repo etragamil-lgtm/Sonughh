@@ -1,11 +1,26 @@
 import os
+import threading
 import urllib.parse
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 import telebot
 
-# Aapka direct token
-BOT_TOKEN = "8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw"  # <- Yahan apna poora token quotes ke andar paste karein
+# Apna Bot Token dalein
+BOT_TOKEN = "8765709173:AAF0hDgBiH61--zD5mr_e1pm-fuGxvPMryw"
 bot = telebot.TeleBot(BOT_TOKEN)
+
+# Render port binding ke liye dummy server (Crash/Sleep rokne ke liye)
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"Bot is alive and running 24/7!")
+
+def run_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+    server.serve_forever()
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -14,7 +29,7 @@ def send_welcome(message):
         f"Namaste {user_name}! 🎨\n\n"
         "Main AI Photo Generator & Editor Bot hoon.\n\n"
         "1. Nayi photo: `/gen cyber warrior neon 4k`\n"
-        "2. Photo remix: Koi bhi photo bhejein aur Caption me prompt likhein!"
+        "2. Photo remix: Photo bhejein aur Caption me prompt likhein!"
     )
     bot.send_message(message.chat.id, text, parse_mode="Markdown")
 
@@ -64,5 +79,11 @@ def handle_incoming_photo(message):
     except Exception as e:
         bot.edit_message_text(f"⚠️ Error: {e}", chat_id, wait_msg.message_id)
 
-print("🤖 Bot 24/7 Cloud Started...")
-bot.infinity_polling(timeout=60, long_polling_timeout=60)
+if __name__ == "__main__":
+    # Web server background thread me start karein
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+    
+    print("🤖 Bot 24/7 Cloud Started with Webhook Support...")
+    bot.infinity_polling(timeout=60, long_polling_timeout=60)
+    
